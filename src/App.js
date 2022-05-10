@@ -12,25 +12,14 @@ function App() {
     const gridArray = Array.from({ length: rows }, () =>
       Array.from( { length: cols}, () => false)
     );
-    console.log(gridArray);
     return gridArray;
   });
 
-  const card = (
-    <Grid item xs={1}>
-      <Card>
-        <CardActionArea
-          sx={{
-            bgcolor: '#373737',
-            width: 50,
-            height: 50,
-            border: 1,
-          }}
-        >
-        </CardActionArea>  
-      </Card>
-    </Grid> 
-  )
+  const handleChange = (row, col, event) => {
+    let copy = [...grid];
+    copy[row][col] = !grid[row][col];
+    setGrid(copy);
+  }
 
   return (
     <Grid container columns={10}
@@ -41,7 +30,20 @@ function App() {
     >
       {grid.map((rows, i) => 
         grid.map((cols, j) =>
-          card
+          <Grid item xs={1}>
+            <Card>
+              <CardActionArea
+                sx={{
+                  bgcolor: grid[i][j] ? '#373737' : '#474747',
+                  width: 50,
+                  height: 50,
+                  border: 1,
+                }}
+                onClick = {(e) => { handleChange(i, j, e)}}
+              >
+              </CardActionArea>  
+            </Card>
+          </Grid> 
         ))}
     </Grid>
   );
