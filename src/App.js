@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
@@ -28,6 +27,12 @@ function App() {
     return neighboursArray;
   });
 
+  const selectTile = (row, col) => {
+    let newGrid = [...grid];
+    newGrid[row][col] = !grid[row][col];
+    setGrid(newGrid);
+  }
+
   const getNeighbours = () => {
     let newNeighbours = [...neighbours];
     for (let col = 0; col < grid.length; col++) {
@@ -44,24 +49,42 @@ function App() {
             if(grid[i][j]) neighbourCount++;
           }
         }
-
-        console.log("c: " + col + " r: " + row + " l: " + leftBound + " r: " + rightBound + " u: " + upperBound + " d: " + lowerBound + " count: " + neighbourCount);
-
         newNeighbours[row][col] = neighbourCount;
       }
     }
-    console.log(newNeighbours);
     setNeighbours(newNeighbours);
   }
 
-  const handleRunningChange = (isRunning) => {
-    setRunning(isRunning);
+  const getNextGeneration = () => {
+    const nextGeneration = [...grid];
+    
+    for(let col in nextGeneration){
+      for(let row in nextGeneration[col]){
+        if(grid[col][row] === true){
+          if(neighbours[col][row] < 2) nextGeneration[col][row] = false;
+          if(neighbours[col][row] > 3) nextGeneration[col][row] = false;
+          if((neighbours[col][row] === 2) || (neighbours[col][row] === 3)) nextGeneration[col][row] = true;
+        }
+        else{
+          if(neighbours[col][row] === 3) nextGeneration[col][row] = true;
+        }
+      }
+    }
+    setGrid(nextGeneration);
   }
 
-  const selectTile = (row, col) => {
-    let newGrid = [...grid];
-    newGrid[row][col] = !grid[row][col];
-    setGrid(newGrid);
+  const runningRef = useRef(running);
+  runningRef.current = running;
+
+  const handleRunningChange = () => {
+    setRunning(!running);
+  }
+
+  const runSimulation = () => {
+    if(!runningRef.current) return
+    getNeighbours();
+    getNextGeneration();
+    setTimeout(runSimulation, 100)
   }
 
   const clearGrid = () => {
@@ -109,21 +132,31 @@ function App() {
       </Grid>
       <Button
         onClick={() => {
-          handleRunningChange(!running);
-          getNeighbours();
+          handleRunningChange();
+          if(!running){
+            runningRef.current = true;
+            runSimulation();
+          }
         }}
       >
       {running ? 'Pause' : 'Start'}
       </Button>
-      <Button
-        onClick={() => { clearGrid() }}
-      >
-        Clear
+      <Button      
+        onClick={() => {
+          getNeighbours();
+          getNextGeneration();
+        }}>
+        Show Next
       </Button>
       <Button
         onClick={() => { getRandomGrid() }}
       >
         Random
+      </Button>
+      <Button
+        onClick={() => { clearGrid() }}
+      >
+        Clear
       </Button>
     </div>
   );
