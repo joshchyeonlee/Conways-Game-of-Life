@@ -11,7 +11,7 @@ const cols = 10;
 function App() {
   const [grid, setGrid] = useState(() => {
     const gridArray = Array.from({ length: rows }, () =>
-      Array.from( { length: cols}, () => false)
+      Array.from( { length: cols }, () => false)
     );
     return gridArray;
   });
@@ -26,7 +26,33 @@ function App() {
       Array.from( { length: cols}, () => false)
     );
     return neighboursArray;
-  })
+  });
+
+  const getNeighbours = () => {
+    let newNeighbours = [...neighbours];
+    for (let col = 0; col < grid.length; col++) {
+      for (let row = 0; row < grid[col].length; row++) {
+        let upperBound = (row > 0) ? row - 1 : row;
+        let lowerBound = (row < grid[col].length - 1) ? row + 1 : row;
+        let leftBound = (col > 0) ? col - 1 : col;
+        let rightBound = (col < grid.length - 1) ? col + 1 : col;
+        let neighbourCount = 0;
+
+        for(let j = leftBound; j <= rightBound; j++){
+          for(let i = upperBound; i <= lowerBound; i++){
+            if((i === row) && (j === col)) continue;
+            if(grid[i][j]) neighbourCount++;
+          }
+        }
+
+        console.log("c: " + col + " r: " + row + " l: " + leftBound + " r: " + rightBound + " u: " + upperBound + " d: " + lowerBound + " count: " + neighbourCount);
+
+        newNeighbours[row][col] = neighbourCount;
+      }
+    }
+    console.log(newNeighbours);
+    setNeighbours(newNeighbours);
+  }
 
   const handleRunningChange = (isRunning) => {
     setRunning(isRunning);
@@ -84,6 +110,7 @@ function App() {
       <Button
         onClick={() => {
           handleRunningChange(!running);
+          getNeighbours();
         }}
       >
       {running ? 'Pause' : 'Start'}
