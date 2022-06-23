@@ -4,9 +4,12 @@ import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
 import { CardActionArea } from "@mui/material";
 import { playGrid } from './tone.functions';
+import { Typography } from "@mui/material";
+import { CardContent } from "@mui/material";
 
 const rows = 10;
 const cols = 10;
+let activeCells = 0;
 
 function App() {
   const [grid, setGrid] = useState(() => {
@@ -36,6 +39,7 @@ function App() {
 
   const getNeighbours = () => {
     let newNeighbours = [...neighbours];
+
     for (let col = 0; col < grid.length; col++) {
       for (let row = 0; row < grid[col].length; row++) {
         let upperBound = (row > 0) ? row - 1 : row;
@@ -50,7 +54,9 @@ function App() {
             if(grid[i][j]) neighbourCount++;
           }
         }
+    
         newNeighbours[row][col] = neighbourCount;
+    
       }
     }
     setNeighbours(newNeighbours);
@@ -74,6 +80,17 @@ function App() {
     setGrid(nextGeneration);
   }
 
+  const countActive = () => {
+    const currentGrid = [...grid];
+    activeCells = 0;
+
+    for(let col in currentGrid) {
+      for(let row in currentGrid[col]){
+        if(grid[col][row]) activeCells++;
+      }
+    }
+  }
+
   const runningRef = useRef(running);
   runningRef.current = running;
 
@@ -85,6 +102,7 @@ function App() {
     if(!runningRef.current) return;
     getNeighbours();
     getNextGeneration();
+    countActive();
     playGrid(grid);
     setTimeout(runSimulation, 1000);
   }
@@ -94,6 +112,8 @@ function App() {
       Array.from({ length: cols }, () => false)
     );
     setGrid(newGrid);
+    activeCells = 0;
+
     setRunning(false);
   }
 
@@ -109,30 +129,46 @@ function App() {
 
   return (
     <div>
-      <Grid container columns={cols}
-        sx={{
-          width: 500,
-          height: 500,
-        }}
-      >
-        {grid.map((rows, i) => 
-          grid.map((cols, j) =>
-            <Grid item xs={1}>
-              <Card>
-                <CardActionArea
-                  sx={{
-                    bgcolor: grid[i][j] ? '#373737' : '#474747',
-                    width: 50,
-                    height: 50,
-                    border: 1,
-                  }}
-                  onClick = {() => { selectTile(i, j) }}
-                >
-                </CardActionArea>  
-              </Card>
-            </Grid> 
-          ))}
+      <Grid container columns={2}>
+        <Grid item>
+          <Grid container columns={cols}
+            sx={{
+              width: 500,
+              height: 500,
+            }}
+          >
+            {grid.map((rows, i) => 
+              grid.map((cols, j) =>
+                <Grid item xs={1}>
+                  <Card>
+                    <CardActionArea
+                      sx={{
+                        bgcolor: grid[i][j] ? '#373737' : '#474747',
+                        width: 50,
+                        height: 50,
+                        border: 1,
+                      }}
+                      onClick = {() => { selectTile(i, j) }}
+                    >
+                    </CardActionArea>  
+                  </Card>
+                </Grid> 
+              ))}
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Card>
+            <CardContent>
+              <Typography>Stats</Typography>
+              <Typography>Number of Rows: {rows}</Typography>
+              <Typography>Number of Columns: {cols}</Typography>
+              <Typography>Active cells: {activeCells}</Typography>
+              <Typography>Dead cells: {(rows * cols) - activeCells}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
+
       <Button
         onClick={() => {
           handleRunningChange();
@@ -149,6 +185,7 @@ function App() {
         onClick={() => {
           getNeighbours();
           getNextGeneration();
+          countActive();
         }}
         
         disabled={runningRef.current}
@@ -156,13 +193,19 @@ function App() {
         Show Next
       </Button>
       <Button
-        onClick={() => { getRandomGrid() }}
+        onClick={() => {
+          getRandomGrid();
+          countActive();
+        }}
+
         disabled={runningRef.current}
       >
         Random
       </Button>
       <Button
-        onClick={() => { clearGrid() }}
+        onClick={() => {
+          clearGrid();
+          }}
       >
         Clear
       </Button>
