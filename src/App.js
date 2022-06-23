@@ -3,6 +3,7 @@ import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
 import { CardActionArea } from "@mui/material";
+import { playGrid } from './tone.functions';
 
 const rows = 10;
 const cols = 10;
@@ -81,10 +82,11 @@ function App() {
   }
 
   const runSimulation = () => {
-    if(!runningRef.current) return
+    if(!runningRef.current) return;
     getNeighbours();
     getNextGeneration();
-    setTimeout(runSimulation, 100)
+    playGrid(grid);
+    setTimeout(runSimulation, 1000);
   }
 
   const clearGrid = () => {
@@ -92,13 +94,14 @@ function App() {
       Array.from({ length: cols }, () => false)
     );
     setGrid(newGrid);
+    setRunning(false);
   }
 
   const getRandomGrid = () => {
     let newGrid = [...grid];
     for(let row in newGrid) {
       for(let col in newGrid[row]) {
-        newGrid[row][col] = Math.random() > 0.8 ? true : false;
+        newGrid[row][col] = Math.random() > 0.85 ? true : false;
       }
     }
     setGrid(newGrid);
@@ -135,6 +138,7 @@ function App() {
           handleRunningChange();
           if(!running){
             runningRef.current = true;
+            playGrid(grid);
             runSimulation();
           }
         }}
@@ -145,11 +149,15 @@ function App() {
         onClick={() => {
           getNeighbours();
           getNextGeneration();
-        }}>
+        }}
+        
+        disabled={runningRef.current}
+        >
         Show Next
       </Button>
       <Button
         onClick={() => { getRandomGrid() }}
+        disabled={runningRef.current}
       >
         Random
       </Button>
