@@ -24,6 +24,11 @@ function App() {
     return isRunning;
   });
 
+  const [empty, setEmpty] = useState(() => {
+    const isEmpty = true;
+    return isEmpty;
+  })
+
   const [neighbours, setNeighbours] = useState(() => {
     const neighboursArray = Array.from({ length: rows }, () =>
       Array.from( { length: cols}, () => false)
@@ -35,6 +40,7 @@ function App() {
     let newGrid = [...grid];
     newGrid[row][col] = !grid[row][col];
     setGrid(newGrid);
+    countActive();
   }
 
   const getNeighbours = () => {
@@ -89,6 +95,7 @@ function App() {
         if(grid[col][row]) activeCells++;
       }
     }
+    handleEmptyChange();
   }
 
   const runningRef = useRef(running);
@@ -96,14 +103,26 @@ function App() {
 
   const handleRunningChange = () => {
     setRunning(!running);
+    countActive();
+  }
+
+  const emptyRef = useRef(empty);
+  emptyRef.current = empty;
+  
+  const handleEmptyChange = () => {
+    if(activeCells === 0) setEmpty(true);
+    else setEmpty(false);
   }
 
   const runSimulation = () => {
-    if(!runningRef.current) return;
+    if(!runningRef.current){
+      return;
+    }
     getNeighbours();
     getNextGeneration();
     countActive();
-    playGrid(grid);
+    if(activeCells < 25) playGrid(grid);
+    else console.log("Exceeded maximump polyphony");
     setTimeout(runSimulation, 1000);
   }
 
@@ -115,6 +134,7 @@ function App() {
     activeCells = 0;
 
     setRunning(false);
+    setEmpty(true);
   }
 
   const getRandomGrid = () => {
@@ -125,11 +145,12 @@ function App() {
       }
     }
     setGrid(newGrid);
+    setEmpty(false);
   }
 
   return (
     <div>
-      <Grid container columns={2}>
+      <Grid container columns={2} spacing={2} padding>
         <Grid item>
           <Grid container columns={cols}
             sx={{
@@ -158,57 +179,67 @@ function App() {
         </Grid>
         <Grid item>
           <Card>
-            <CardContent>
-              <Typography>Stats</Typography>
-              <Typography>Number of Rows: {rows}</Typography>
-              <Typography>Number of Columns: {cols}</Typography>
-              <Typography>Active cells: {activeCells}</Typography>
-              <Typography>Dead cells: {(rows * cols) - activeCells}</Typography>
+            <CardContent
+              sx={{
+                bgcolor: `#373737`,
+                border: 1,
+              }}
+              elevation={24}
+              >
+              <Typography variant="h5" color='#E4E4E4'>STATS</Typography>
+              <Typography variant="h6" color='#E4E4E4'>Number of Rows: {rows}</Typography>
+              <Typography variant="h6" color='#E4E4E4'>Number of Columns: {cols}</Typography>
+              <Typography variant="h6" color='#E4E4E4'>Active cells: {activeCells}</Typography>
+              <Typography variant="h6" color='#E4E4E4'>Dead cells: {(rows * cols) - activeCells}</Typography>
             </CardContent>
           </Card>
+          <Button
+            onClick={() => {
+              handleRunningChange();
+              if(!running){
+                runningRef.current = true;
+                playGrid(grid);
+                runSimulation();
+              }
+            }}
+
+            disabled={emptyRef.current}
+          >
+          {running ? 'Pause' : 'Start'}
+          </Button>
+          <Button      
+            onClick={() => {
+              getNeighbours();
+              getNextGeneration();
+              countActive();
+            }}
+            
+            disabled={runningRef.current || emptyRef.current}
+            >
+            Show Next
+          </Button>
+          <Button
+            onClick={() => {
+              getRandomGrid();
+              countActive();
+            }}
+
+            disabled={runningRef.current}
+          >
+            Random
+          </Button>
+          <Button
+            onClick={() => {
+              clearGrid();
+              }}
+          >
+            Clear
+          </Button>
+        </Grid>
+        <Grid item>
+
         </Grid>
       </Grid>
-
-      <Button
-        onClick={() => {
-          handleRunningChange();
-          if(!running){
-            runningRef.current = true;
-            playGrid(grid);
-            runSimulation();
-          }
-        }}
-      >
-      {running ? 'Pause' : 'Start'}
-      </Button>
-      <Button      
-        onClick={() => {
-          getNeighbours();
-          getNextGeneration();
-          countActive();
-        }}
-        
-        disabled={runningRef.current}
-        >
-        Show Next
-      </Button>
-      <Button
-        onClick={() => {
-          getRandomGrid();
-          countActive();
-        }}
-
-        disabled={runningRef.current}
-      >
-        Random
-      </Button>
-      <Button
-        onClick={() => {
-          clearGrid();
-          }}
-      >
-        Clear
-      </Button>
     </div>
   );
 }
