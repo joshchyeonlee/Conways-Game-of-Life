@@ -6,6 +6,7 @@ import { CardActionArea } from "@mui/material";
 import { playGrid } from './tone.functions';
 import { Typography } from "@mui/material";
 import { CardContent } from "@mui/material";
+import { Snackbar } from "@mui/material";
 
 const rows = 10;
 const cols = 10;
@@ -207,6 +208,12 @@ function App() {
           >
           {running ? 'Pause' : 'Start'}
           </Button>
+          <Snackbar
+            open={activeCells >= 25}
+            autoHideDuration={4000}
+            message="Exceeded maximum polyphony, skipping audio for generation"
+          >
+          </Snackbar>
           <Button      
             onClick={() => {
               getNeighbours();
