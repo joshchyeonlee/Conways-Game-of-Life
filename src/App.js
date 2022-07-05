@@ -2,11 +2,9 @@ import React, { useRef, useState } from "react";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
-import { CardActionArea } from "@mui/material";
 import { playGrid } from './tone.functions';
-import { Typography } from "@mui/material";
-import { CardContent } from "@mui/material";
-import { Snackbar } from "@mui/material";
+import { scaleArray } from "./tone.functions";
+import { CardActionArea, Typography, CardContent, Snackbar, Select, MenuItem, FormControl, InputLabel, Paper } from "@mui/material";
 
 const rows = 10;
 const cols = 10;
@@ -36,6 +34,13 @@ function App() {
     );
     return neighboursArray;
   });
+
+  const [scale, setScale] = useState(() => {
+    const scale = scaleArray[0].notes;
+    console.log("scale set to");
+    console.log(scale);
+    return scale;
+  })
 
   const selectTile = (row, col) => {
     let newGrid = [...grid];
@@ -115,6 +120,10 @@ function App() {
     else setEmpty(false);
   }
 
+  const handleScaleChange = (e) => {
+    setScale(e.target.value);
+  }
+
   const runSimulation = () => {
     if(!runningRef.current){
       return;
@@ -122,7 +131,7 @@ function App() {
     getNeighbours();
     getNextGeneration();
     countActive();
-    if(activeCells < 25) playGrid(grid);
+    if(activeCells < 25) playGrid(grid, scale);
     else console.log("Exceeded maximump polyphony");
     setTimeout(runSimulation, 1000);
   }
@@ -178,7 +187,7 @@ function App() {
               ))}
           </Grid>
         </Grid>
-        <Grid item>
+        <Grid item width={350}>
           <Card>
             <CardContent
               sx={{
@@ -187,11 +196,34 @@ function App() {
               }}
               elevation={24}
               >
-              <Typography variant="h5" color='#E4E4E4'>STATS</Typography>
-              <Typography variant="h6" color='#E4E4E4'>Number of Rows: {rows}</Typography>
-              <Typography variant="h6" color='#E4E4E4'>Number of Columns: {cols}</Typography>
-              <Typography variant="h6" color='#E4E4E4'>Active cells: {activeCells}</Typography>
-              <Typography variant="h6" color='#E4E4E4'>Dead cells: {(rows * cols) - activeCells}</Typography>
+              <Grid container columns={1}>
+                <Grid item padding height={190}>
+                  <Typography variant="h5" color='#E4E4E4'>STATS</Typography>
+                  <Typography variant="h6" color='#E4E4E4'>Number of Rows: {rows}</Typography>
+                  <Typography variant="h6" color='#E4E4E4'>Number of Columns: {cols}</Typography>
+                  <Typography variant="h6" color='#E4E4E4'>Active cells: {activeCells}</Typography>
+                  <Typography variant="h6" color='#E4E4E4'>Dead cells: {(rows * cols) - activeCells}</Typography>
+                </Grid>
+                <Grid item>
+                  <FormControl fullWidth sx={{color: "#E4E4E4"}}>
+                  <InputLabel sx={{color: "#E4E4E4"}}>Select Scale</InputLabel>
+                  <Select
+                    label="Select Scale"
+                    variant="filled"
+                    onChange={handleScaleChange}
+                    value={scale}
+                    sx={{color: "#FFFFFF"}}
+                  >
+                    {scaleArray.map(scaleElem => (
+                      <MenuItem value={scaleElem.notes} key={scaleElem.name}>{scaleElem.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Typography size="16px" color='#E4E4E4' padding>
+                  Disclaimer: Simulation works best using the Chromatic Scale. Too many octaves generated using other scales may make your ears bleed.
+                </Typography>
+                </Grid>
+              </Grid>
             </CardContent>
           </Card>
           <Button
@@ -207,7 +239,7 @@ function App() {
             disabled={emptyRef.current}
           >
           {running ? 'Pause' : 'Start'}
-          </Button>
+          </Button>            
           <Snackbar
             open={activeCells >= 25}
             autoHideDuration={4000}
@@ -242,9 +274,6 @@ function App() {
           >
             Clear
           </Button>
-        </Grid>
-        <Grid item>
-
         </Grid>
       </Grid>
     </div>
