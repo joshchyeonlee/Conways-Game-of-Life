@@ -4,41 +4,43 @@ import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
 import { playGrid } from './tone.functions';
 import { scaleArray } from "./tone.functions";
-import { CardActionArea, Typography, CardContent, Snackbar, Select, MenuItem, FormControl, InputLabel, Paper } from "@mui/material";
+import { CardActionArea, Typography, CardContent, Snackbar, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 
-const rows = 10;
-const cols = 10;
+const Rows = 10;
+const Cols = 10;
 let activeCells = 0;
+const MaxPolyphony = 25
 
 function App() {
   const [grid, setGrid] = useState(() => {
-    const gridArray = Array.from({ length: rows }, () =>
-      Array.from( { length: cols }, () => false)
-    );
+    const gridArray = Array.from({ length: Rows }, () =>
+      Array.from( { length: Cols }, () => false));
+    
     return gridArray;
   });
 
   const [running, setRunning] = useState(() => {
     const isRunning = false;
+    
     return isRunning;
   });
 
   const [empty, setEmpty] = useState(() => {
     const isEmpty = true;
+    
     return isEmpty;
   })
 
   const [neighbours, setNeighbours] = useState(() => {
-    const neighboursArray = Array.from({ length: rows }, () =>
-      Array.from( { length: cols}, () => false)
-    );
+    const neighboursArray = Array.from({ length: Rows }, () =>
+      Array.from( { length: Cols}, () => false));
+    
     return neighboursArray;
   });
 
   const [scale, setScale] = useState(() => {
     const scale = scaleArray[0].notes;
-    console.log("scale set to");
-    console.log(scale);
+    
     return scale;
   })
 
@@ -66,11 +68,11 @@ function App() {
             if(grid[i][j]) neighbourCount++;
           }
         }
-    
+
         newNeighbours[row][col] = neighbourCount;
-    
       }
     }
+
     setNeighbours(newNeighbours);
   }
 
@@ -89,6 +91,7 @@ function App() {
         }
       }
     }
+
     setGrid(nextGeneration);
   }
 
@@ -101,6 +104,7 @@ function App() {
         if(grid[col][row]) activeCells++;
       }
     }
+
     handleEmptyChange();
   }
 
@@ -116,8 +120,7 @@ function App() {
   emptyRef.current = empty;
   
   const handleEmptyChange = () => {
-    if(activeCells === 0) setEmpty(true);
-    else setEmpty(false);
+    setEmpty(activeCells === 0);
   }
 
   const scaleRef = useRef(scale);
@@ -128,35 +131,36 @@ function App() {
   }
 
   const runSimulation = () => {
-    if(!runningRef.current){
-      return;
-    }
+    
+    if(!runningRef.current) return;
+    
     getNeighbours();
     getNextGeneration();
     countActive();
-    if(activeCells < 25) playGrid(grid, scaleRef.current);
-    else console.log("Exceeded maximump polyphony");
+
+    if(activeCells < MaxPolyphony) playGrid(grid, scaleRef.current);
     setTimeout(runSimulation, 1000);
   }
 
   const clearGrid = () => {
-    const newGrid = Array.from({ length: rows }, () => 
-      Array.from({ length: cols }, () => false)
-    );
+    const newGrid = Array.from({ length: Rows }, () => 
+      Array.from({ length: Cols }, () => false));
+
     setGrid(newGrid);
     activeCells = 0;
-
     setRunning(false);
     setEmpty(true);
   }
 
   const getRandomGrid = () => {
     let newGrid = [...grid];
+    
     for(let row in newGrid) {
       for(let col in newGrid[row]) {
         newGrid[row][col] = Math.random() > 0.85 ? true : false;
       }
     }
+
     setGrid(newGrid);
     setEmpty(false);
   }
@@ -165,14 +169,9 @@ function App() {
     <div>
       <Grid container columns={2} spacing={2} padding>
         <Grid item>
-          <Grid container columns={cols}
-            sx={{
-              width: 500,
-              height: 500,
-            }}
-          >
-            {grid.map((rows, i) => 
-              grid.map((cols, j) =>
+          <Grid container columns={Cols} sx={{ width: 500, height: 500,}}>
+            {grid.map((Rows, i) => 
+              grid.map((Cols, j) =>
                 <Grid item xs={1}>
                   <Card>
                     <CardActionArea
@@ -192,20 +191,14 @@ function App() {
         </Grid>
         <Grid item width={350}>
           <Card>
-            <CardContent
-              sx={{
-                bgcolor: `#373737`,
-                border: 1,
-              }}
-              elevation={24}
-              >
+            <CardContent sx={{ bgcolor: `#373737`, border: 1,}} elevation={24}>
               <Grid container columns={1}>
                 <Grid item padding height={190}>
                   <Typography variant="h5" color='#E4E4E4'>STATS</Typography>
-                  <Typography variant="h6" color='#E4E4E4'>Number of Rows: {rows}</Typography>
-                  <Typography variant="h6" color='#E4E4E4'>Number of Columns: {cols}</Typography>
+                  <Typography variant="h6" color='#E4E4E4'>Number of Rows: {Rows}</Typography>
+                  <Typography variant="h6" color='#E4E4E4'>Number of Columns: {Cols}</Typography>
                   <Typography variant="h6" color='#E4E4E4'>Active cells: {activeCells}</Typography>
-                  <Typography variant="h6" color='#E4E4E4'>Dead cells: {(rows * cols) - activeCells}</Typography>
+                  <Typography variant="h6" color='#E4E4E4'>Dead cells: {(Rows * Cols) - activeCells}</Typography>
                 </Grid>
                 <Grid item>
                   <FormControl fullWidth sx={{color: "#E4E4E4"}}>
@@ -218,8 +211,7 @@ function App() {
                     sx={{color: "#FFFFFF"}}
                   >
                     {scaleArray.map(scaleElem => (
-                      <MenuItem value={scaleElem.notes} key={scaleElem.name}>{scaleElem.name}</MenuItem>
-                    ))}
+                      <MenuItem value={scaleElem.notes} key={scaleElem.name}>{scaleElem.name}</MenuItem>))}
                   </Select>
                 </FormControl>
                 <Typography size="16px" color='#E4E4E4' padding>
@@ -238,13 +230,12 @@ function App() {
                 runSimulation();
               }
             }}
-
             disabled={emptyRef.current}
           >
           {running ? 'Pause' : 'Start'}
           </Button>            
           <Snackbar
-            open={activeCells >= 25}
+            open={activeCells >= MaxPolyphony}
             autoHideDuration={4000}
             message="Exceeded maximum polyphony, skipping audio for generation"
           >
@@ -265,18 +256,11 @@ function App() {
               getRandomGrid();
               countActive();
             }}
-
             disabled={runningRef.current}
           >
             Random
           </Button>
-          <Button
-            onClick={() => {
-              clearGrid();
-              }}
-          >
-            Clear
-          </Button>
+          <Button onClick={() => {clearGrid();}}>Clear</Button>
         </Grid>
       </Grid>
     </div>
