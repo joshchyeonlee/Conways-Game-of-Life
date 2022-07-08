@@ -27,8 +27,6 @@ export const scaleArray = [{
 
 export function playGrid(grid, scale){
     const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-    const now = Tone.now();
-
     synth.volume.value = -12;
 
     let noteIndex = 0;
@@ -38,7 +36,6 @@ export function playGrid(grid, scale){
     for(let col = grid.length -1 ; col >= 0; col--){
         for(let row = 0; row < grid[col].length; row++){
             let note = noteArray[scale[noteIndex]] + `${octaveCounter}`;
-            console.log(note);
             noteIndex++;
 
             if(noteIndex >= scale.length) {
@@ -46,9 +43,9 @@ export function playGrid(grid, scale){
                 octaveCounter++;
             }
 
-            notes.push(note);
-            if(grid[col][row]) synth.triggerAttack(note, now);
+            if(grid[col][row]) notes.push(note);
         }
     }
-    synth.triggerRelease(notes, now + 1);
+
+    synth.triggerAttackRelease(notes, "4n");
 }
