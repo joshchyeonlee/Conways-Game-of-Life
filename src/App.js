@@ -120,6 +120,9 @@ function App() {
     else setEmpty(false);
   }
 
+  const scaleRef = useRef(scale);
+  scaleRef.current = scale;
+
   const handleScaleChange = (e) => {
     setScale(e.target.value);
   }
@@ -131,7 +134,7 @@ function App() {
     getNeighbours();
     getNextGeneration();
     countActive();
-    if(activeCells < 25) playGrid(grid, scale);
+    if(activeCells < 25) playGrid(grid, scaleRef.current);
     else console.log("Exceeded maximump polyphony");
     setTimeout(runSimulation, 1000);
   }
@@ -231,7 +234,7 @@ function App() {
               handleRunningChange();
               if(!running){
                 runningRef.current = true;
-                playGrid(grid);
+                playGrid(grid, scaleRef.current);
                 runSimulation();
               }
             }}

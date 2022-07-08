@@ -38,7 +38,6 @@ export function playGrid(grid, scale){
     for(let col = grid.length -1 ; col >= 0; col--){
         for(let row = 0; row < grid[col].length; row++){
             let note = noteArray[scale[noteIndex]] + `${octaveCounter}`;
-            console.log(note);
             noteIndex++;
 
             if(noteIndex >= scale.length) {
