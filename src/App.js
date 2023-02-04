@@ -215,7 +215,7 @@ function App() {
                   </Select>
                 </FormControl>
                 <Typography size="16px" color='#E4E4E4' padding>
-                  Disclaimer: Simulation works best using the Chromatic Scale. Too many octaves generated using other scales may make your ears bleed.
+                  Disclaimer: Simulation works best using the Chromatic Scale. Too many octaves generated using other scales may cause discomfort.
                 </Typography>
                 </Grid>
               </Grid>
