@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import Button from '@mui/material/Button';
 import { playGrid } from './tone.functions';
 import { scaleArray } from "./tone.functions";
-import { CardActionArea, Typography, CardContent, Snackbar, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { CardActionArea, Typography, CardContent, Snackbar, Select, MenuItem, FormControl, InputLabel, Box } from "@mui/material";
 
 const Rows = 10;
 const Cols = 10;
@@ -166,8 +166,8 @@ function App() {
   }
 
   return (
-    <div>
-      <Grid container columns={2} spacing={2} padding>
+    <Box display="flex" justifyContent="center" alignItems="center" sx={{width: "100%", height: "100vh"}}>
+      <Grid container columns={2} spacing={2} padding display="flex" justifyContent="center">
         <Grid item>
           <Grid container columns={Cols} sx={{ width: 500, height: 500,}}>
             {grid.map((Rows, i) => 
@@ -263,7 +263,7 @@ function App() {
           <Button onClick={() => {clearGrid();}}>Clear</Button>
         </Grid>
       </Grid>
-    </div>
+    </Box>
   );
 }
 
